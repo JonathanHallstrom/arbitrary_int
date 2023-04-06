@@ -93,6 +93,8 @@ impl CHANGEME {
             (Medium(a), Small(b)) => util::add_medium(*a, *b as u128),
             (Medium(a), Medium(b)) => util::add_medium(*a, *b),
             (Medium(a), Large(b)) => util::add_large_to_medium(b, *a),
+            (Large(a), Medium(b)) => util::add_large_to_medium(a, *b),
+            (Large(a), Large(b)) => util::add_large(a, b),
             _ => Small(0),
         }
     }
