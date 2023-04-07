@@ -12,7 +12,6 @@ impl Default for CHANGEME {
         CHANGEME::Small(0)
     }
 }
-
 impl From<u8> for CHANGEME {
     fn from(value: u8) -> Self {
         CHANGEME::Small(value as u64)
@@ -35,12 +34,26 @@ impl From<u64> for CHANGEME {
 }
 impl From<u128> for CHANGEME {
     fn from(value: u128) -> Self {
-        CHANGEME::Medium(value)
+        if value <= u64::MAX as u128 {
+            CHANGEME::from(value as u64)
+        } else {
+            CHANGEME::Medium(value)
+        }
     }
 }
 impl From<BigUint> for CHANGEME {
     fn from(value: BigUint) -> Self {
-        CHANGEME::Large(value)
+        if value <= BigUint::from(u128::MAX) {
+            let mut res: u128 = 0;
+            let mut shift: u128 = 0;
+            for digit in value.to_u32_digits() {
+                res |= (digit as u128) << shift;
+                shift += 32;
+            }
+            CHANGEME::from(res)
+        } else {
+            CHANGEME::Large(value)
+        }
     }
 }
 impl From<&BigUint> for CHANGEME {
