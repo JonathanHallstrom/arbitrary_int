@@ -1,5 +1,5 @@
 use num_bigint::BigUint;
-use std::ops::Add;
+use std::ops::{Add, Mul};
 
 #[derive(Debug, PartialEq, PartialOrd)]
 pub enum CHANGEME {
@@ -66,6 +66,7 @@ pub mod util {
 
     pub fn add_medium(a: u128, b: u128) -> CHANGEME {
         let (sum, carry) = a.overflowing_add(b);
+
         if likely(!carry) {
             CHANGEME::Medium(sum)
         } else {
@@ -73,7 +74,13 @@ pub mod util {
         }
     }
 
-    pub fn add_large_to_medium(a: &BigUint, b: u128) -> CHANGEME {
+    pub fn add_large_and_small(a: &BigUint, b: u64) -> CHANGEME {
+        let mut res = BigUint::from(b);
+        res += a;
+        CHANGEME::Large(res)
+    }
+
+    pub fn add_large_and_medium(a: &BigUint, b: u128) -> CHANGEME {
         let mut res = BigUint::from(b);
         res += a;
         CHANGEME::Large(res)
@@ -81,6 +88,42 @@ pub mod util {
 
     pub fn add_large(a: &BigUint, b: &BigUint) -> CHANGEME {
         CHANGEME::Large(a + b)
+    }
+
+    pub fn mul_small(a: u64, b: u64) -> CHANGEME {
+        let res = (a as u128) * (b as u128);
+        if res >> 64 != 0 {
+            CHANGEME::Medium(res)
+        } else {
+            CHANGEME::Small(res as u64)
+        }
+    }
+
+    pub fn mul_medium(a: u128, b: u128) -> CHANGEME {
+        let (prod, overflowed) = a.overflowing_mul(b);
+        if unlikely(overflowed) {
+            let mut res = BigUint::from(a);
+            res *= BigUint::from(b);
+            CHANGEME::Large(res)
+        } else {
+            CHANGEME::Medium(prod)
+        }
+    }
+
+    pub fn mul_large_and_small(a: &BigUint, b: u64) -> CHANGEME {
+        let mut res = BigUint::from(b);
+        res *= a;
+        CHANGEME::Large(res)
+    }
+
+    pub fn mul_large_and_medium(a: &BigUint, b: u128) -> CHANGEME {
+        let mut res = BigUint::from(b);
+        res *= a;
+        CHANGEME::Large(res)
+    }
+
+    pub fn mul_large(a: &BigUint, b: &BigUint) -> CHANGEME {
+        CHANGEME::Large(a * b)
     }
 }
 
@@ -92,10 +135,26 @@ impl CHANGEME {
             (Small(a), Medium(b)) => util::add_medium(*a as u128, *b),
             (Medium(a), Small(b)) => util::add_medium(*a, *b as u128),
             (Medium(a), Medium(b)) => util::add_medium(*a, *b),
-            (Medium(a), Large(b)) => util::add_large_to_medium(b, *a),
-            (Large(a), Medium(b)) => util::add_large_to_medium(a, *b),
+            (Small(a), Large(b)) => util::add_large_and_small(b, *a),
+            (Large(a), Small(b)) => util::add_large_and_small(a, *b),
+            (Medium(a), Large(b)) => util::add_large_and_medium(b, *a),
+            (Large(a), Medium(b)) => util::add_large_and_medium(a, *b),
             (Large(a), Large(b)) => util::add_large(a, b),
-            _ => Small(0),
+        }
+    }
+
+    fn compute_product(&self, other: &CHANGEME) -> CHANGEME {
+        use CHANGEME::*;
+        match (self, other) {
+            (Small(a), Small(b)) => util::mul_small(*a, *b),
+            (Small(a), Medium(b)) => util::mul_medium(*a as u128, *b),
+            (Medium(a), Small(b)) => util::mul_medium(*a, *b as u128),
+            (Medium(a), Medium(b)) => util::mul_medium(*a, *b),
+            (Small(a), Large(b)) => util::mul_large_and_small(b, *a),
+            (Large(a), Small(b)) => util::mul_large_and_small(a, *b),
+            (Medium(a), Large(b)) => util::mul_large_and_medium(b, *a),
+            (Large(a), Medium(b)) => util::mul_large_and_medium(a, *b),
+            (Large(a), Large(b)) => util::mul_large(a, b),
         }
     }
 }
@@ -111,5 +170,19 @@ impl Add<CHANGEME> for CHANGEME {
     type Output = CHANGEME;
     fn add(self, rhs: CHANGEME) -> Self::Output {
         self.compute_sum(&rhs)
+    }
+}
+
+impl Mul<&CHANGEME> for &CHANGEME {
+    type Output = CHANGEME;
+    fn mul(self, rhs: &CHANGEME) -> Self::Output {
+        self.compute_product(rhs)
+    }
+}
+
+impl Mul<CHANGEME> for CHANGEME {
+    type Output = CHANGEME;
+    fn mul(self, rhs: CHANGEME) -> Self::Output {
+        self.compute_product(&rhs)
     }
 }
