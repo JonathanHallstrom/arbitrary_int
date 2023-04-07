@@ -25,6 +25,10 @@ mod tests {
                     CHANGEME::from(i) + CHANGEME::from(j),
                     CHANGEME::from(i as u128 + j as u128)
                 );
+
+                let mut temp = CHANGEME::from(i);
+                temp += CHANGEME::from(j);
+                assert_eq!(temp, CHANGEME::from(i as u128 + j as u128));
             }
         }
     }
@@ -43,6 +47,10 @@ mod tests {
                         CHANGEME::from(i) + CHANGEME::from(j),
                         CHANGEME::from(BigUint::from(i) + BigUint::from(j))
                     );
+
+                    let mut temp = CHANGEME::from(i);
+                    temp += CHANGEME::from(j);
+                    assert_eq!(temp, CHANGEME::from(BigUint::from(i) + BigUint::from(j)));
                 }
             }
         }
@@ -68,6 +76,9 @@ mod tests {
                     CHANGEME::from(i) * CHANGEME::from(j),
                     CHANGEME::from(i as u128 * j as u128)
                 );
+                let mut temp = CHANGEME::from(i);
+                temp *= CHANGEME::from(j);
+                assert_eq!(temp, CHANGEME::from(i as u128 * j as u128));
             }
         }
     }
@@ -86,6 +97,10 @@ mod tests {
                         CHANGEME::from(i) * CHANGEME::from(j),
                         CHANGEME::from(BigUint::from(i) * BigUint::from(j))
                     );
+
+                    let mut temp = CHANGEME::from(i);
+                    temp *= CHANGEME::from(j);
+                    assert_eq!(temp, CHANGEME::from(BigUint::from(i) * BigUint::from(j)));
                 }
             }
         }

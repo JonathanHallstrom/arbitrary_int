@@ -1,5 +1,5 @@
 use num_bigint::BigUint;
-use std::ops::{Add, Mul};
+use std::ops::{Add, AddAssign, Mul, MulAssign};
 
 #[derive(Debug, PartialEq, PartialOrd)]
 pub enum CHANGEME {
@@ -170,6 +170,44 @@ impl CHANGEME {
             (Large(a), Large(b)) => util::mul_large(a, b),
         }
     }
+
+    fn incr_by(&mut self, other: &CHANGEME) {
+        use CHANGEME::*;
+        if let Large(ref mut s) = self {
+            match &other {
+                &Large(o) => {
+                    *s += o;
+                }
+                &Medium(o) => {
+                    *s += BigUint::from(*o);
+                }
+                &Small(o) => {
+                    *s += BigUint::from(*o);
+                }
+            };
+        } else {
+            *self = self.compute_sum(other);
+        }
+    }
+
+    fn mul_by(&mut self, other: &CHANGEME) {
+        use CHANGEME::*;
+        if let Large(ref mut s) = self {
+            match &other {
+                &Large(o) => {
+                    *s *= o;
+                }
+                &Medium(o) => {
+                    *s *= BigUint::from(*o);
+                }
+                &Small(o) => {
+                    *s *= BigUint::from(*o);
+                }
+            };
+        } else {
+            *self = self.compute_product(other);
+        }
+    }
 }
 
 impl Add<&CHANGEME> for &CHANGEME {
@@ -178,24 +216,41 @@ impl Add<&CHANGEME> for &CHANGEME {
         self.compute_sum(rhs)
     }
 }
-
 impl Add<CHANGEME> for CHANGEME {
     type Output = CHANGEME;
     fn add(self, rhs: CHANGEME) -> Self::Output {
         self.compute_sum(&rhs)
     }
 }
-
 impl Mul<&CHANGEME> for &CHANGEME {
     type Output = CHANGEME;
     fn mul(self, rhs: &CHANGEME) -> Self::Output {
         self.compute_product(rhs)
     }
 }
-
 impl Mul<CHANGEME> for CHANGEME {
     type Output = CHANGEME;
     fn mul(self, rhs: CHANGEME) -> Self::Output {
         self.compute_product(&rhs)
+    }
+}
+impl AddAssign<&CHANGEME> for CHANGEME {
+    fn add_assign(&mut self, rhs: &CHANGEME) {
+        self.incr_by(rhs);
+    }
+}
+impl AddAssign<CHANGEME> for CHANGEME {
+    fn add_assign(&mut self, rhs: CHANGEME) {
+        self.incr_by(&rhs);
+    }
+}
+impl MulAssign<&CHANGEME> for CHANGEME {
+    fn mul_assign(&mut self, rhs: &CHANGEME) {
+        self.mul_by(rhs);
+    }
+}
+impl MulAssign<CHANGEME> for CHANGEME {
+    fn mul_assign(&mut self, rhs: CHANGEME) {
+        self.mul_by(&rhs);
     }
 }
