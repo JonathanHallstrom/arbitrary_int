@@ -174,14 +174,14 @@ impl CHANGEME {
     fn incr_by(&mut self, other: &CHANGEME) {
         use CHANGEME::*;
         if let Large(ref mut s) = self {
-            match &other {
-                &Large(o) => {
+            match other {
+                Large(o) => {
                     *s += o;
                 }
-                &Medium(o) => {
+                Medium(o) => {
                     *s += BigUint::from(*o);
                 }
-                &Small(o) => {
+                Small(o) => {
                     *s += BigUint::from(*o);
                 }
             };
@@ -193,14 +193,14 @@ impl CHANGEME {
     fn mul_by(&mut self, other: &CHANGEME) {
         use CHANGEME::*;
         if let Large(ref mut s) = self {
-            match &other {
-                &Large(o) => {
+            match other {
+                Large(o) => {
                     *s *= o;
                 }
-                &Medium(o) => {
+                Medium(o) => {
                     *s *= BigUint::from(*o);
                 }
-                &Small(o) => {
+                Small(o) => {
                     *s *= BigUint::from(*o);
                 }
             };
