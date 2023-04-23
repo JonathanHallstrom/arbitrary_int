@@ -3,6 +3,15 @@ name = "arbitrary_int"
 version = "0.1.0"
 edition = "2021"
 
+
+[lib]
+name = "arbitrary_int"
+path = "src/lib.rs"
+
+[[bench]]
+name = "arbitrary_int_bench"
+path = "src/bench.rs"
+
 [dependencies]
 likely_stable = "0.1.2"
 num-bigint = "0.4.3"
