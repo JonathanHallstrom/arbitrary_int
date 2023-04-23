@@ -15,7 +15,7 @@ mod benchmarks {
             }
             res
         } else {
-            product_range::<T>(lo, lo + (hi - lo) / 2) * product_range(lo + lo + (hi - lo) / 2, hi)
+            product_range::<T>(lo, lo + (hi - lo) / 2) * product_range(lo + (hi - lo) / 2, hi)
         }
     }
 
