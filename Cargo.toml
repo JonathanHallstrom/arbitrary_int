@@ -3,7 +3,6 @@ name = "arbitrary_int"
 version = "0.1.0"
 edition = "2021"
 
-
 [lib]
 name = "arbitrary_int"
 path = "src/lib.rs"

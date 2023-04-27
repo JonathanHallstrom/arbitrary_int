@@ -7,6 +7,9 @@ mod benchmarks {
     use arbitrary_int::*;
     use num_bigint::BigUint;
 
+    const ITERS: i64 = 1 << 15;
+    const SMALL_ITERS: i64 = 1 << 10;
+
     fn product_range<T: core::ops::Mul<Output = T> + From<u64>>(lo: u64, hi: u64) -> T {
         if lo.abs_diff(hi) < 16 {
             let mut res = T::from(1);
@@ -20,7 +23,6 @@ mod benchmarks {
     }
 
     fn compute_factorial<T: core::ops::Mul<Output = T> + From<u64>>(n: u64) -> T {
-
         // if n < 2 {
         //     return T::from(1);
         // }
@@ -45,7 +47,7 @@ mod benchmarks {
             state
         };
         b.iter(|| {
-            for _ in 0..(1 << 20) {
+            for _ in 0..ITERS {
                 test::black_box(T::from(myrand() % 16) + T::from(myrand() % 16));
             }
         });
@@ -58,7 +60,7 @@ mod benchmarks {
             state
         };
         b.iter(|| {
-            for _ in 0..(1 << 20) {
+            for _ in 0..ITERS {
                 test::black_box(T::from(myrand() % 16) * T::from(myrand() % 16));
             }
         });
@@ -71,7 +73,7 @@ mod benchmarks {
             state
         };
         b.iter(|| {
-            for _ in 0..(1 << 10) {
+            for _ in 0..SMALL_ITERS {
                 test::black_box(compute_factorial::<T>(myrand() % 8));
             }
         });
@@ -84,7 +86,7 @@ mod benchmarks {
             state
         };
         b.iter(|| {
-            for _ in 0..(1 << 10) {
+            for _ in 0..SMALL_ITERS {
                 test::black_box(compute_factorial::<T>(myrand() % 21));
             }
         });
